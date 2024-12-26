@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Audio Converter</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PDF to Audio Converter</h1>
+            <p>Transform your PDF documents into high-quality audio files</p>
+        </div>
+
+        <form id="audioForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="pdfFile">Upload PDF File</label>
+                <input type="file" id="pdfFile" class="file-input" accept="application/pdf" required>
+            </div>
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-microphone"></i>
+                Generate Audio
+            </button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+    <script>
+        document.getElementById('audioForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const pdfFile = document.getElementById('pdfFile').files[0];
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = "Generating audio, please wait...";
+
+            if (!pdfFile) {
+                resultDiv.innerHTML = "<p>Please upload a PDF file.</p>";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('source_file', pdfFile);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/generate_audio/', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p>Audio generated successfully!</p>
+                        <audio controls>
+                            <source src="${data.audio_url}" type="audio/wav">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <a href="http://127.0.0.1:8000/download_audio/?audio_url=${encodeURIComponent(data.audio_url)}" download>
+                            <button class="download-btn">Download Audio</button>
+                        </a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p>Error: ${data.detail}</p>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+
+</html>
