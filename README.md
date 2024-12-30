@@ -40,12 +40,13 @@ Navigate to the frontend directory and open the index.html file in your browser.
 ```bash
 cd ../frontend
 ```
+(Windows)
 ```bash
 start index.html
-(Windows)
-bash
-open index.html
+```
 (MacOS)
+```bash
+open index.html
 ```
 
 
